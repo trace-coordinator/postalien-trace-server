@@ -4669,9 +4669,9 @@ postcss@^7.0.16:
     picocolors "^0.2.1"
     source-map "^0.6.1"
 
-"postwoman@https://github.com/haoadoresorange/postwoman.git#postwoman-v0.2.0-gitpkg":
-  version "0.2.0"
-  resolved "https://github.com/haoadoresorange/postwoman.git#832f893b15c5109267d37c91e9c66693e9629590"
+"postwoman@https://github.com/haoadoresorange/postwoman.git#postwoman-v0.3.0-gitpkg":
+  version "0.3.0"
+  resolved "https://github.com/haoadoresorange/postwoman.git#e5ea15306e2f8cfa41746270942fd587b2d2e789"
   dependencies:
     inquirer "^8.2.0"
 
