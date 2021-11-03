@@ -25,7 +25,7 @@ const xy_cache = {
     entries: null as number[] | null,
 };
 
-const tsp_client = new TspClient(getVar(`tsp-base-url`) as string);
+const tsp_client = new TspClient((getVar(`tsp-base-url`) as string) + `/tsp/api`);
 
 postwoman({
     TSP: {
