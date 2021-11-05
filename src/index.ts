@@ -11,7 +11,6 @@ import {
     TspClient,
     Query,
     TspClientResponse,
-    Trace,
     Experiment,
     OutputDescriptor,
     QueryHelper,
@@ -20,8 +19,8 @@ import {
     Entry,
 } from "tsp-typescript-client";
 import inquirer from "inquirer";
+import fetch from "node-fetch";
 
-const TRACE_UUIDS = `trace-uuids`;
 const EXP_UUID = `exp-uuid`;
 const EXP_START = `exp-start`;
 const EXP_END = `exp-end`;
@@ -32,7 +31,8 @@ const xy_cache = {} as {
     entries: number[];
 };
 
-const tsp_client = new TspClient((getVar(`tsp-base-url`) as string) + `/tsp/api`);
+const trace_server_url = (getVar(`tsp-base-url`) as string) + `/tsp/api`;
+const tsp_client = new TspClient(trace_server_url);
 
 const logIfError = (r: TspClientResponse<unknown>) => {
     if (!r.isOk()) console.error(JSON.stringify(r, null, 4));
@@ -42,28 +42,9 @@ const logIfError = (r: TspClientResponse<unknown>) => {
 postalien({
     TSP: {
         TRACES: {
-            "Get traces": {
-                request: async () => {
-                    return logIfError(await tsp_client.fetchTraces());
-                },
-                postquest: (r) => {
-                    const tmp = (r as TspClientResponse<Trace[]>).getModel();
-                    if (Array.isArray(tmp))
-                        setVar(
-                            TRACE_UUIDS,
-                            tmp.map((t) => t.UUID),
-                        );
-                    return Promise.resolve();
-                },
-            },
-            "Import a trace": {
-                body: {
-                    name: `{{trace-name}}`,
-                    uri: `{{trace-uri}}`,
-                },
-                request: async function () {
-                    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-                    return logIfError(await tsp_client.openTrace(new Query(this.body!)));
+            "Create experiment": {
+                request: function () {
+                    return fetch(`${trace_server_url}/dev/createExperimentsFromTraces`, { method: `POST` });
                 },
             },
         },
@@ -98,16 +79,6 @@ postalien({
                             .catch((e) => console.error(e));
                     }
                     return Promise.resolve();
-                },
-            },
-            "Create new experiment": {
-                body: {
-                    name: `experiment`,
-                    traces: `{{${TRACE_UUIDS}}}`,
-                },
-                request: async function () {
-                    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-                    return logIfError(await tsp_client.createExperiment(new Query(this.body!)));
                 },
             },
             "Get experiment's outputs": {
