@@ -43,8 +43,11 @@ postalien({
     TSP: {
         TRACES: {
             "Create experiment": {
-                request: function () {
-                    return fetch(`${trace_server_url}/dev/createExperimentsFromTraces`, { method: `POST` });
+                request: async () => {
+                    const r = await fetch(`${trace_server_url}/dev/createExperimentsFromTraces`, {
+                        method: `POST`,
+                    });
+                    return r.text();
                 },
             },
         },
