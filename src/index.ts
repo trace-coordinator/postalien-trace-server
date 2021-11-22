@@ -108,7 +108,14 @@ postwoman({
             "Get XY tree": {
                 quiet: true,
                 body: {
-                    requested_times: [`{{${EXP_START}}}`, `{{${EXP_END}}}`],
+                    requested_times: null,
+                },
+                prequest: function () {
+                    this.body!.requested_times = [
+                        BigInt(getVar(EXP_START) as string),
+                        BigInt(getVar(EXP_END) as string),
+                    ];
+                    return Promise.resolve();
                 },
                 request: async function () {
                     const outputs = getVar(EXP_OUPUTS) as unknown as OutputDescriptor[];
@@ -137,6 +144,7 @@ postwoman({
                 },
             },
             "Get XY model": {
+                quiet: true,
                 request: () => {
                     if (!xy_cache.output) throw new Error(`No xy output selected`);
                     if (!xy_cache.entries) throw new Error(`No xy tree entries cached`);

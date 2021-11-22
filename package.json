@@ -77,6 +77,6 @@
         "inquirer": "^8.2.0",
         "postwoman": "https://github.com/haoadoresorange/postwoman.git#postwoman-v0.3.0-gitpkg",
         "shx": "^0.3.3",
-        "tsp-typescript-client": "https://github.com/haoadoresorange/tsp-typescript-client.git#tsp-typescript-client-v0.3.0-gitpkg"
+        "tsp-typescript-client": "https://github.com/trace-coordinator/tsp-typescript-client.git#tsp-typescript-client-v0.3.2-gitpkg"
     }
 }
