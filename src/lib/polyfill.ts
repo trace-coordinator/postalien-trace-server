@@ -19,3 +19,13 @@ if (!String.prototype.replaceAll) {
         return this.replace(new RegExp(str, `g`), new_str);
     };
 }
+
+declare global {
+    interface BigInt {
+        toJSON(): string;
+    }
+}
+
+BigInt.prototype.toJSON = function () {
+    return this.toString();
+};

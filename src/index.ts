@@ -20,9 +20,9 @@ const EXP_START = `exp-start`;
 const EXP_END = `exp-end`;
 const EXP_OUPUTS = `exp-outputs`;
 
-const xy_cache = {
-    output: null as string | null,
-    entries: null as number[] | null,
+const xy_cache = {} as {
+    output: string;
+    entries: number[];
 };
 
 const tsp_client = new TspClient((getVar(`tsp-base-url`) as string) + `/tsp/api`);
@@ -31,7 +31,7 @@ postwoman({
     TSP: {
         TRACES: {
             "Get traces": {
-                request: function () {
+                request: () => {
                     return tsp_client.fetchTraces();
                 },
                 postquest: (r) => {
@@ -56,10 +56,10 @@ postwoman({
         },
         Experiments: {
             "Get experiments": {
-                request: function () {
+                request: () => {
                     return tsp_client.fetchExperiments();
                 },
-                postquest: function (r: unknown) {
+                postquest: (r: unknown) => {
                     const tmp = (r as TspClientResponse<Experiment[]>).getModel();
                     if (Array.isArray(tmp) && tmp.length > 0) {
                         return inquirer
@@ -78,8 +78,8 @@ postwoman({
                             ])
                             .then((answers: { [EXP_UUID]: Experiment }) => {
                                 setVar(EXP_UUID, answers[EXP_UUID].UUID);
-                                setVar(EXP_START, answers[EXP_UUID].start);
-                                setVar(EXP_END, answers[EXP_UUID].end);
+                                setVar(EXP_START, answers[EXP_UUID].start.toString());
+                                setVar(EXP_END, answers[EXP_UUID].end.toString());
                             })
                             .catch((e) => console.error(e));
                     }
@@ -96,12 +96,12 @@ postwoman({
                 },
             },
             "Get experiment's outputs": {
-                request: function () {
+                request: () => {
                     return tsp_client.experimentOutputs(getVar(EXP_UUID) as string);
                 },
                 postquest: (r) => {
                     const tmp = (r as TspClientResponse<OutputDescriptor[]>).getModel();
-                    if (Array.isArray(tmp)) setVar(EXP_OUPUTS, tmp);
+                    if (Array.isArray(tmp)) setVar(EXP_OUPUTS, JSON.parse(JSON.stringify(tmp)));
                     return Promise.resolve();
                 },
             },
@@ -138,7 +138,8 @@ postwoman({
             },
             "Get XY model": {
                 request: () => {
-                    if (!xy_cache.output) throw new Error(`No xy tree has been queried successfully yet`);
+                    if (!xy_cache.output) throw new Error(`No xy output selected`);
+                    if (!xy_cache.entries) throw new Error(`No xy tree entries cached`);
                     return tsp_client.fetchXY(
                         getVar(EXP_UUID) as string,
                         xy_cache.output,
@@ -149,7 +150,7 @@ postwoman({
                                 BigInt(getVar(EXP_END) as string),
                                 Math.floor(1500 * 0.85),
                             ),
-                            xy_cache.entries as number[],
+                            xy_cache.entries,
                         ),
                     );
                 },
