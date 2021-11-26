@@ -27,12 +27,17 @@ const xy_cache = {} as {
 
 const tsp_client = new TspClient((getVar(`tsp-base-url`) as string) + `/tsp/api`);
 
+const logIfError = (r: TspClientResponse<unknown>) => {
+    if (!r.isOk()) console.error(JSON.stringify(r, null, 4));
+    return r;
+};
+
 postwoman({
     TSP: {
         TRACES: {
             "Get traces": {
-                request: () => {
-                    return tsp_client.fetchTraces();
+                request: async () => {
+                    return logIfError(await tsp_client.fetchTraces());
                 },
                 postquest: (r) => {
                     const tmp = (r as TspClientResponse<Trace[]>).getModel();
@@ -49,15 +54,17 @@ postwoman({
                     name: `{{trace-name}}`,
                     uri: `{{trace-uri}}`,
                 },
-                request: function () {
-                    return tsp_client.openTrace(new Query(this.body!));
+                request: async function () {
+                    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                    return logIfError(await tsp_client.openTrace(new Query(this.body!)));
                 },
             },
         },
         Experiments: {
             "Get experiments": {
-                request: () => {
-                    return tsp_client.fetchExperiments();
+                quiet: true,
+                request: async () => {
+                    return logIfError(await tsp_client.fetchExperiments());
                 },
                 postquest: (r: unknown) => {
                     const tmp = (r as TspClientResponse<Experiment[]>).getModel();
@@ -91,13 +98,15 @@ postwoman({
                     name: `experiment`,
                     traces: `{{${TRACE_UUIDS}}}`,
                 },
-                request: function () {
-                    return tsp_client.createExperiment(new Query(this.body!));
+                request: async function () {
+                    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                    return logIfError(await tsp_client.createExperiment(new Query(this.body!)));
                 },
             },
             "Get experiment's outputs": {
-                request: () => {
-                    return tsp_client.experimentOutputs(getVar(EXP_UUID) as string);
+                quiet: true,
+                request: async () => {
+                    return logIfError(await tsp_client.experimentOutputs(getVar(EXP_UUID) as string));
                 },
                 postquest: (r) => {
                     const tmp = (r as TspClientResponse<OutputDescriptor[]>).getModel();
@@ -111,6 +120,7 @@ postwoman({
                     requested_times: null,
                 },
                 prequest: function () {
+                    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
                     this.body!.requested_times = [
                         BigInt(getVar(EXP_START) as string),
                         BigInt(getVar(EXP_END) as string),
@@ -130,10 +140,13 @@ postwoman({
                         },
                     ])) as { [EXP_OUPUTS]: string };
                     xy_cache.output = answer[EXP_OUPUTS];
-                    return tsp_client.fetchXYTree(
-                        getVar(EXP_UUID) as string,
-                        xy_cache.output,
-                        new Query(this.body!),
+                    return logIfError(
+                        await tsp_client.fetchXYTree(
+                            getVar(EXP_UUID) as string,
+                            xy_cache.output,
+                            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                            new Query(this.body!),
+                        ),
                     );
                 },
                 postquest: (r) => {
@@ -145,20 +158,22 @@ postwoman({
             },
             "Get XY model": {
                 quiet: true,
-                request: () => {
+                request: async () => {
                     if (!xy_cache.output) throw new Error(`No xy output selected`);
                     if (!xy_cache.entries) throw new Error(`No xy tree entries cached`);
-                    return tsp_client.fetchXY(
-                        getVar(EXP_UUID) as string,
-                        xy_cache.output,
-                        QueryHelper.selectionTimeQuery(
-                            // copy-paste from thei-trace-ext
-                            QueryHelper.splitRangeIntoEqualParts(
-                                BigInt(getVar(EXP_START) as string),
-                                BigInt(getVar(EXP_END) as string),
-                                Math.floor(1500 * 0.85),
+                    return logIfError(
+                        await tsp_client.fetchXY(
+                            getVar(EXP_UUID) as string,
+                            xy_cache.output,
+                            QueryHelper.selectionTimeQuery(
+                                // copy-paste from thei-trace-ext
+                                QueryHelper.splitRangeIntoEqualParts(
+                                    BigInt(getVar(EXP_START) as string),
+                                    BigInt(getVar(EXP_END) as string),
+                                    Math.floor(1500 * 0.85),
+                                ),
+                                xy_cache.entries,
                             ),
-                            xy_cache.entries,
                         ),
                     );
                 },
