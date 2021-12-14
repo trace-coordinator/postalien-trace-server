@@ -1,5 +1,5 @@
 import "lib/polyfill";
-import { postwoman, setVar, getVar } from "postwoman";
+import { postalien, setVar, getVar } from "postalien";
 import {
     TspClient,
     Query,
@@ -32,7 +32,7 @@ const logIfError = (r: TspClientResponse<unknown>) => {
     return r;
 };
 
-postwoman({
+postalien({
     TSP: {
         TRACES: {
             "Get traces": {
@@ -106,7 +106,9 @@ postwoman({
             "Get experiment's outputs": {
                 quiet: true,
                 request: async () => {
-                    return logIfError(await tsp_client.experimentOutputs(getVar(EXP_UUID) as string));
+                    return logIfError(
+                        await tsp_client.experimentOutputs(getVar(EXP_UUID) as string),
+                    );
                 },
                 postquest: (r) => {
                     const tmp = (r as TspClientResponse<OutputDescriptor[]>).getModel();
@@ -150,8 +152,9 @@ postwoman({
                     );
                 },
                 postquest: (r) => {
-                    const tmp = (r as TspClientResponse<GenericResponse<EntryModel<Entry>>>).getModel()
-                        ?.model;
+                    const tmp = (
+                        r as TspClientResponse<GenericResponse<EntryModel<Entry>>>
+                    ).getModel()?.model;
                     if (tmp) xy_cache.entries = tmp.entries.map((e) => e.id);
                     return Promise.resolve();
                 },
