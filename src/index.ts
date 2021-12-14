@@ -1,3 +1,10 @@
+process.on(`unhandledRejection`, (reason, promise) => {
+    console.error(`Unhandled Rejection reason:`);
+    console.error(reason);
+    console.error(`Unhandled Rejection at:`);
+    console.error(promise);
+    process.exit(1);
+});
 import "lib/polyfill";
 import { postalien, setVar, getVar } from "postalien";
 import {
