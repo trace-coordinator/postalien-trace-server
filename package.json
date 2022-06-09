@@ -84,9 +84,9 @@
     },
     "dependencies": {
         "inquirer": "^8.2.0",
-        "postalien": "^0.15.0",
+        "postalien": "^0.16.0",
         "shx": "^0.3.3",
         "source-map-support": "^0.5.21",
-        "tsp-typescript-client": "https://github.com/trace-coordinator/tsp-typescript-client.git#tsp-typescript-client-v0.3.2-gitpkg"
+        "tsp-typescript-client": "https://github.com/trace-coordinator/tsp-typescript-client.git#tsp-typescript-client-v0.78.0-gitpkg"
     }
 }

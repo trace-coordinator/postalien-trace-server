@@ -102,7 +102,7 @@ postalien({
             },
             "Create new experiment": {
                 body: {
-                    name: `experiment`,
+                    name: `{{trace-name}}`,
                     traces: `{{${TRACE_UUIDS}}}`,
                 },
                 request: async function () {
@@ -127,6 +127,8 @@ postalien({
                 quiet: true,
                 body: {
                     requested_times: null,
+                    step: 0,
+                    wait: true,
                 },
                 prequest: function () {
                     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
